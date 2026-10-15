@@ -5,6 +5,8 @@ import rclpy
 from rclpy.node import Node
 from custom_interfaces.srv import PoseCoords, MoveTransfer
 
+import numpy as np
+
 
 # ========================================
 #                   Class
@@ -14,18 +16,31 @@ class SendPoseService(Node):
     def __init__(self):
         super().__init__('send_pose_service')
         self._srv = self.create_service(PoseCoords, 'pose_coords', self.pose_coords_cb)
+
         self._cli = self.create_client(MoveTransfer, 'move_transfer')
+        while not self._cli.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('MoveTransfer service not available, waiting again...')
 
     # ========== Get user pose ==========
     def pose_coords_cb(self, request, response):
         start = request.start_pos
         goal = request.goal_pos
+        goal = np.array(goal, dtype=np.float64)
         self.get_logger().info(f'start: {start}')
         self.get_logger().info(f'goal: {goal}')
+
+        self.get_logger().info("#Setting goal")
+
+
+        # !!! Test
+        req = MoveTransfer.Request()
+        req.goal = goal
+        future = self._cli.call_async(req)
 
         response.status = 0
 
         return response
+
 
 
 
