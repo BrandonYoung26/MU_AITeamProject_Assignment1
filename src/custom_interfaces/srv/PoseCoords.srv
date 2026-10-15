@@ -1,0 +1,4 @@
+float32[3] start_pos
+float32[3] goal_pos
+---
+int64 status
