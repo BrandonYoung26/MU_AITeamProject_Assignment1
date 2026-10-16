@@ -10,7 +10,11 @@ ros2 service call /pose_coords custom_interfaces/srv/PoseCoords "{start_pos: [0,
 
 ## Using Git
 git status                  # status of your repo
+
 git add .                   # adds everything to commit (can specify folder/file instead of .)
+
 git commit -m "message"     # commit and add message
+
 git push                    # pushes commit to git repo
+
 git pull                    # update your local repo
