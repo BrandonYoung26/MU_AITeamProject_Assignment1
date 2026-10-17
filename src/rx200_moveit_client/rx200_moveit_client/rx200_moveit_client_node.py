@@ -13,6 +13,8 @@ from geometry_msgs.msg import PoseStamped, Quaternion
 
 from custom_interfaces.srv import MoveTransfer
 
+import numpy as np
+
 
 # ========================================
 #                   Class
@@ -53,17 +55,22 @@ class RX200MoveItActionClient(Node):
         p.pose.position.x = x
         p.pose.position.y = y
         p.pose.position.z = z 
-        p.pose.orientation = Quaternion(x=0.0, y=0.0, z=0.0, w=w) #--fix--
+
+        yaw = np.arctan2(y, x)
+        qz = np.sin(yaw/2)
+        qw = np.cos(yaw/2)
+
+        p.pose.orientation = Quaternion(x=0.0, y=0.0, z=qz, w=qw) #--fix--
 
         # moveit action request
         req = MotionPlanRequest()
         req.group_name = self.arm_group
         #req.pipeline_id = "pilz_industrial_motion_planner"
         #req.planner_id = "LIN"  # --- linear?
-        #req.max_velocity_scaling_factor = 0.5
-        #req.max_acceleration_scaling_factor = 0.5
+        req.max_velocity_scaling_factor = 0.1
+        req.max_acceleration_scaling_factor = 0.1
         req.allowed_planning_time = 5.0
-        req.num_planning_attempts = 3
+        req.num_planning_attempts = 10
 
 
         # position tolerence
