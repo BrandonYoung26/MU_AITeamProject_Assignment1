@@ -56,16 +56,17 @@ class RX200MoveItActionClient(Node):
         p.pose.position.y = y
         p.pose.position.z = z 
 
+        # Yaw for y axis travel with flat gripper
         yaw = np.arctan2(y, x)
         qz = np.sin(yaw/2)
         qw = np.cos(yaw/2)
 
-        p.pose.orientation = Quaternion(x=0.0, y=0.0, z=qz, w=qw) #--fix--
+        p.pose.orientation = Quaternion(x=0.0, y=0.0, z=qz, w=qw)
 
         # moveit action request
         req = MotionPlanRequest()
         req.group_name = self.arm_group
-        #req.pipeline_id = "pilz_industrial_motion_planner"
+        #req.pipeline_id = "pilz_industrial_motion_planner" # not installed?
         #req.planner_id = "LIN"  # --- linear?
         req.max_velocity_scaling_factor = 0.1
         req.max_acceleration_scaling_factor = 0.1
