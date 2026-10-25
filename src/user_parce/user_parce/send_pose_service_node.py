@@ -22,7 +22,7 @@ class SendPoseService(Node):
             self.get_logger().info('MoveTransfer service not available, waiting again...')
 
     # ========== Get user pose ==========
-    def pose_coords_cb(self, request, response):
+    async def pose_coords_cb(self, request, response):
         start = request.start_pos
         goal = request.goal_pos
         goal = np.array(goal, dtype=np.float64)
@@ -35,9 +35,11 @@ class SendPoseService(Node):
         # !!! Test
         req = MoveTransfer.Request()
         req.goal = goal
-        future = self._cli.call_async(req)
+        future = await self._cli.call_async(req)
 
-        response.status = 0
+        result = MoveTransfer.Response
+
+        response.status = result.status
 
         return response
 
