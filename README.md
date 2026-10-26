@@ -1,5 +1,5 @@
 # MU_AITeamProject_Assignment1
-Msc Robotics and Embedded AI - AITeamProject Assignemnt 1
+Msc Robotics and Embedded AI - AITeamProject Assignment 1
 
 Steps:
 - Ensure Interbotix pkg's installed and sourced
@@ -10,7 +10,7 @@ Steps:
 ## Primary Launch Commands
 ### Launch Interbotix and Action Client
 Real Robot: ros2 launch moveit_launch moveit_launch.launch.py
-Fake Robot: ros2 launch moveit_launch moveit_launch.launch.py hardware_type:=fake
+\n Fake Robot: ros2 launch moveit_launch moveit_launch.launch.py hardware_type:=fake
 
 ### Launch User Interface
 ros2 run user_parce send_pose 

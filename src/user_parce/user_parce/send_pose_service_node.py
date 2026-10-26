@@ -76,7 +76,7 @@ def movement_seq(node, start, end):
 
             if result != 1:
                 node.get_logger().info(f'[Command Request] Request Failed (Code: {result}, Exiting Sequence...)')
-                return
+                return -1
 
             node.get_logger().info(f'[Command Request] Request Successful')
 
@@ -106,7 +106,85 @@ def movement_seq(node, start, end):
 #               User Input
 # ========================================
 def user_input(node):
-    pass
+    while True:
+
+        while True:
+            try:
+                user_input = input('\nPlease Enter Start x and y position in meters e.g. 0.2 0.4 (or q to quit): ').strip().lower()
+
+                # Quit
+                if user_input == 'q':
+                    print('Exiting...')
+                    return
+                
+                pos_1 = user_input.split()
+
+                # Not enough values
+                if len(pos_1) < 2:
+                    print('ERROR - Missing Parameters')
+                    continue
+
+                x1 = float(pos_1[0])
+                y1 = float(pos_1[1])
+
+                # Out of rough range
+                if (x1 < -1) or (y1 < -1):
+                    print('ERROR - Value too small')
+                    continue
+                elif (x1 > 1) or (y1 > 1):
+                    print('ERROR - Value too large')
+                    continue
+
+                break
+
+            except:
+                ValueError
+                print('ERROR - Invalid Input.')
+
+        while True:
+            try:
+                user_input = input('\nPlease Enter End x and y position in meters e.g. 0.3 0.2 (or q to quit): ').strip().lower()
+
+                # Quit
+                if user_input == 'q':
+                    print('Exiting...')
+                    return
+                
+                pos_2 = user_input.split()
+
+                # Not enough values
+                if len(pos_2) < 2:
+                    print('ERROR - Missing Parameters')
+                    continue
+                
+                x2 = float(pos_2[0])
+                y2 = float(pos_2[1])
+
+                # Out of rough range
+                if (x2 < -1) or (y2 < -1):
+                    print('ERROR - Value too small')
+                    continue
+                elif (x2 > 1) or (y2 > 1):
+                    print('ERROR - Value too large')
+                    continue
+
+                break
+        
+            except:
+                ValueError
+                print('ERROR - Invalid Input.')
+
+            print()
+
+        start = [float(x1), float(y1)]
+        end = [float(x2), float(y2)]
+        response = movement_seq(node, start, end)
+
+        if response == -1:
+            pass
+
+    return
+        
 
 
 # ========================================
@@ -115,12 +193,9 @@ def user_input(node):
 def main(args=None):
     rclpy.init(args=args)
     node = CommandRequestServices()
-
-    start = [0.3, 0.3]
-    end = [0.3, -0.3]
-    movement_seq(node, start, end)
-
+    user_input(node)
     rclpy.shutdown()
+
 
 if __name__ == '__main__':
     main()
