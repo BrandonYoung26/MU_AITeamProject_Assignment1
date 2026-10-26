@@ -31,7 +31,7 @@ class RX200MoveItActionClient(Node):
         # Robot action client
         self._client = ActionClient(self, MoveGroup, '/move_action', callback_group=self.cb_group)
         while not self._client.wait_for_server(1.0):
-            self.get_logger().warning("[WARNING] Action server not up")
+            self.get_logger().warning("[Action Client] Warning - Action server not up")
 
         # Input Pose
         self._srv = self.create_service(MoveCommand, 'move_command', self._move_command_cb, callback_group=self.cb_group)
@@ -43,7 +43,7 @@ class RX200MoveItActionClient(Node):
         self.arm_group = "interbotix_arm"
         self.gripper_group = "interbotix_gripper"
         self.ee_link = "rx200/ee_gripper_link"
-        self.base_link = "rx200/ee_base_link"
+        self.base_link = "rx200/base_link"
         self.gripper_joint = 'left_finger'
 
         # initial position
@@ -52,7 +52,7 @@ class RX200MoveItActionClient(Node):
         self._client.send_goal_async(move_goal, self._feedback_cb)
         self._client.send_goal_async(grip_goal, self._feedback_cb)
 
-        self.get_logger().info('RX200 MoveIt Client Initialised')
+        self.get_logger().info('[Action Client] RX200 MoveIt Client Initialised')
 
 
 # ========== EE Position ==========
@@ -153,13 +153,13 @@ class RX200MoveItActionClient(Node):
 # ========== Feedback Callback ==========
     def _feedback_cb(self, feedback_msg):
         state = feedback_msg.feedback.state # why not future (question)
-        self.get_logger().info(f'Current state: {state}')
+        self.get_logger().info(f'[Action Client] Current state: {state}')
 
 
 # ========== Command Move Callback ==========
     async def _move_command_cb(self, request, response):
         request_goal = request.goal
-        self.get_logger().info(f'goal: {request_goal}')
+        self.get_logger().info(f'[Action Client] goal: {request_goal}')
 
         moveit_goal = self.send_ee_pose(request_goal[0], request_goal[1], request_goal[2])
 
@@ -170,7 +170,7 @@ class RX200MoveItActionClient(Node):
         
         result = await handle_goal.get_result_async()
         code = result.result.error_code.val
-        self.get_logger().info(f'[Results] Result code {code}')
+        self.get_logger().info(f'[Action Client] Result code {code}')
 
         response.status = code
 
@@ -180,7 +180,7 @@ class RX200MoveItActionClient(Node):
 # ========== Command Gripper Callback ==========
     async def _grip_command_cb(self, request, response):
         request_goal = request.grip
-        self.get_logger().info(f'grip: {request_goal}')
+        self.get_logger().info(f'[Action Client] grip: {request_goal}')
 
         moveit_goal = self.send_gr_pose(request_goal)
 
@@ -191,7 +191,7 @@ class RX200MoveItActionClient(Node):
         
         result = await handle_goal.get_result_async()
         code = result.result.error_code.val
-        self.get_logger().info(f'[Results] Result code {code}')
+        self.get_logger().info(f'[Action Client] Result code {code}')
 
         response.status = code
 
@@ -202,9 +202,9 @@ class RX200MoveItActionClient(Node):
     def _goal_response_cb(self, future):
         handle_goal = future.result()
         if not handle_goal.accepted:
-            self.get_logger().warning('[Warning] Goal rejected by MoveIt Server.')
+            self.get_logger().warning('[Action Client] Warning - Goal rejected by MoveIt Server.')
             return 
-        self.get_logger().info('Goal accepected.')
+        self.get_logger().info('[Action Client] Goal accepected.')
         handle_goal.get_result_async().add_done_callback(self._result_cb)
 
 
@@ -212,7 +212,7 @@ class RX200MoveItActionClient(Node):
     def _result_cb(self, future):
         result = future.result().result
         code = result.error_code.val
-        self.get_logger().info(f'[Results] Result code {code}')
+        self.get_logger().info(f'[Action Client] Result code {code}')
 
 
 

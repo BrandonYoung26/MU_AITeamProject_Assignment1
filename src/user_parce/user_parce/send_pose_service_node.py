@@ -51,7 +51,7 @@ def movement_seq(node, start, end):
 
     seq = [
         ['grip', True],
-        ['move', start[0], start[1], 0.9],
+        ['move', start[0], start[1], 0.2],
         ['move', start[0], start[1], 0.05],
         ['grip', False],
         ['move', start[0], start[1], 0.2],
@@ -99,6 +99,14 @@ def movement_seq(node, start, end):
             node.get_logger().info(f'[Command Request] Request Successful')
 
     node.get_logger().info(f'[Command Request] Sequenced Completed Successfully.')
+
+
+
+# ========================================
+#               User Input
+# ========================================
+def user_input(node):
+    pass
 
 
 # ========================================
