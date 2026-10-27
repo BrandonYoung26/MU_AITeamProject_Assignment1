@@ -10,7 +10,8 @@ Steps:
 ## Primary Launch Commands
 ### Launch Interbotix and Action Client
 Real Robot: ros2 launch moveit_launch moveit_launch.launch.py
-\n Fake Robot: ros2 launch moveit_launch moveit_launch.launch.py hardware_type:=fake
+
+Fake Robot: ros2 launch moveit_launch moveit_launch.launch.py hardware_type:=fake
 
 ### Launch User Interface
 ros2 run user_parce send_pose 
