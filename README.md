@@ -35,6 +35,7 @@ ros2 service call /grip_command custom_interfaces/srv/GripCommand "{grip: false}
 
 
 ## Using Git
+
 git status                  # status of your repo
 
 git add --all               # adds everything to commit (can specify folder/file instead of .)
