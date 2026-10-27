@@ -128,11 +128,14 @@ def user_input(node):
                 y1 = float(pos_1[1])
 
                 # Out of rough range
-                if (x1 < -1) or (y1 < -1):
-                    print('ERROR - Value too small')
+                if (abs(x1) <= 0.2) or (abs(y1) <= 0.2):
+                    print('ERROR - Too close to base')
                     continue
-                elif (x1 > 1) or (y1 > 1):
-                    print('ERROR - Value too large')
+                elif (abs(y1) > 0.4) and (x1 == 0.0):
+                    print('ERROR - y value too large, robot will tip')
+                    continue
+                elif (x1**2 + y1**2) > 0.25:
+                    print('ERROR - Out of reach')
                     continue
 
                 break
@@ -161,11 +164,14 @@ def user_input(node):
                 y2 = float(pos_2[1])
 
                 # Out of rough range
-                if (x2 < -1) or (y2 < -1):
-                    print('ERROR - Value too small')
+                if (abs(x2) <= 0.2) or (abs(y2) <= 0.2):
+                    print('ERROR - Too close to base')
                     continue
-                elif (x2 > 1) or (y2 > 1):
-                    print('ERROR - Value too large')
+                elif (abs(y2) > 0.4) and (x2 == 0.0):
+                    print('ERROR - y value too large, robot will tip')
+                    continue
+                elif (x2**2 + y2**2) > 0.25:
+                    print('ERROR - Out of reach')
                     continue
 
                 break
