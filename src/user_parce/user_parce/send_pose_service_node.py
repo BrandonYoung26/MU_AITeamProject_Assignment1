@@ -3,7 +3,8 @@
 # ========================================
 import rclpy
 from rclpy.node import Node
-from custom_interfaces.srv import PoseCoords, MoveTransfer
+
+from custom_interfaces.srv import MoveCommand, GripCommand
 
 import numpy as np
 
@@ -11,37 +12,179 @@ import numpy as np
 # ========================================
 #                   Class
 # ========================================
-class SendPoseService(Node):
+class CommandRequestServices(Node):
     # ========== Initialize Class ==========
     def __init__(self):
-        super().__init__('send_pose_service')
-        self._srv = self.create_service(PoseCoords, 'pose_coords', self.pose_coords_cb)
+        super().__init__('command_request_services')
 
-        self._cli = self.create_client(MoveTransfer, 'move_transfer')
-        while not self._cli.wait_for_service(timeout_sec=1.0):
-            self.get_logger().info('MoveTransfer service not available, waiting again...')
+        self.move_cli = self.create_client(MoveCommand, 'move_command') 
+        while not self.move_cli.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('[Command Request] MoveCommand service not available, waiting again...')
 
-    # ========== Get user pose ==========
-    def pose_coords_cb(self, request, response):
-        start = request.start_pos
-        goal = request.goal_pos
-        goal = np.array(goal, dtype=np.float64)
-        self.get_logger().info(f'start: {start}')
-        self.get_logger().info(f'goal: {goal}')
+        self.grip_cli = self.create_client(GripCommand, 'grip_command')
+        while not self.grip_cli.wait_for_service(timeout_sec=1.0):
+            self.get_logger().info('[Command Request] GripCommand service not available, waiting again...')
 
-        self.get_logger().info("#Setting goal")
+        self.get_logger().info('[Command Request] Command Client Initialized')
+   
+
+    # ========== Move Command ==========
+    def move_command(self, goal_pose):
+        request = MoveCommand.Request()
+        request.goal = goal_pose
+
+        return self.move_cli.call_async(request)
+
+    # ========== Grip Command ==========
+    def grip_command(self, grip_state):
+        request = GripCommand.Request()
+        request.grip = grip_state
+    
+        return self.grip_cli.call_async(request)
 
 
-        # !!! Test
-        req = MoveTransfer.Request()
-        req.goal = goal
-        future = self._cli.call_async(req)
+    
+# ========================================
+#           Movement Sequencer
+# ========================================
+def movement_seq(node, start, end):
 
-        response.status = 0
+    seq = [
+        ['grip', True],
+        ['move', start[0], start[1], 0.2],
+        ['move', start[0], start[1], 0.05],
+        ['grip', False],
+        ['move', start[0], start[1], 0.2],
+        ['move', end[0], end[1], 0.2],
+        ['move', end[0], end[1], 0.05],
+        ['grip', True],
+        ['move', end[0], end[1], 0.2],
+        ['move', 0.3, 0.0, 0.3]
+    ]
 
-        return response
+    # ========== Sequencer ==========
+    for i in range(len(seq)):
+        # Gripper Command Request
+        if seq[i][0] == 'grip':
+            grip_state = seq[i][1]
+            node.get_logger().info(f'[Command Request] Step {i+1} - {"Close" if grip_state == False else "Open"} Gripper')
+
+            future = node.grip_command(grip_state)
+            rclpy.spin_until_future_complete(node, future)
+            reseponse = future.result()
+            result = reseponse.status
+
+            if result != 1:
+                node.get_logger().info(f'[Command Request] Request Failed (Code: {result}, Exiting Sequence...)')
+                return -1
+
+            node.get_logger().info(f'[Command Request] Request Successful')
+
+        # Gripper Command Request
+        elif seq[i][0] == 'move':
+            x = seq[i][1]
+            y = seq[i][2]
+            z = seq[i][3]
+            node.get_logger().info(f'[Command Request] Step {i+1} - Sending Goal: ({x}, {y}, {z})')
+
+            future = node.move_command([x, y, z])
+            rclpy.spin_until_future_complete(node, future)
+            reseponse = future.result()
+            result = reseponse.status
+
+            if result != 1:
+                node.get_logger().info(f'[Command Request] Request Failed (Code: {result}, Exiting...)')
+                return
+
+            node.get_logger().info(f'[Command Request] Request Successful')
+
+    node.get_logger().info(f'[Command Request] Sequenced Completed Successfully.')
 
 
+
+# ========================================
+#               User Input
+# ========================================
+def user_input(node):
+    while True:
+
+        while True:
+            try:
+                user_input = input('\nPlease Enter Start x and y position in meters e.g. 0.2 0.4 (or q to quit): ').strip().lower()
+
+                # Quit
+                if user_input == 'q':
+                    print('Exiting...')
+                    return
+                
+                pos_1 = user_input.split()
+
+                # Not enough values
+                if len(pos_1) < 2:
+                    print('ERROR - Missing Parameters')
+                    continue
+
+                x1 = float(pos_1[0])
+                y1 = float(pos_1[1])
+
+                # Out of rough range
+                if (x1 < -1) or (y1 < -1):
+                    print('ERROR - Value too small')
+                    continue
+                elif (x1 > 1) or (y1 > 1):
+                    print('ERROR - Value too large')
+                    continue
+
+                break
+
+            except:
+                ValueError
+                print('ERROR - Invalid Input.')
+
+        while True:
+            try:
+                user_input = input('\nPlease Enter End x and y position in meters e.g. 0.3 0.2 (or q to quit): ').strip().lower()
+
+                # Quit
+                if user_input == 'q':
+                    print('Exiting...')
+                    return
+                
+                pos_2 = user_input.split()
+
+                # Not enough values
+                if len(pos_2) < 2:
+                    print('ERROR - Missing Parameters')
+                    continue
+                
+                x2 = float(pos_2[0])
+                y2 = float(pos_2[1])
+
+                # Out of rough range
+                if (x2 < -1) or (y2 < -1):
+                    print('ERROR - Value too small')
+                    continue
+                elif (x2 > 1) or (y2 > 1):
+                    print('ERROR - Value too large')
+                    continue
+
+                break
+        
+            except:
+                ValueError
+                print('ERROR - Invalid Input.')
+
+            print()
+
+        start = [float(x1), float(y1)]
+        end = [float(x2), float(y2)]
+        response = movement_seq(node, start, end)
+
+        if response == -1:
+            pass
+
+    return
+        
 
 
 # ========================================
@@ -49,10 +192,10 @@ class SendPoseService(Node):
 # ========================================
 def main(args=None):
     rclpy.init(args=args)
-    node = SendPoseService()
-    rclpy.spin(node)
-
+    node = CommandRequestServices()
+    user_input(node)
     rclpy.shutdown()
+
 
 if __name__ == '__main__':
     main()
