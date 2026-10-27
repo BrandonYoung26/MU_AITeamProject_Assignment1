@@ -128,7 +128,7 @@ class RX200MoveItActionClient(Node):
         # joint constraint
         jc = JointConstraint()
         jc.joint_name = self.gripper_joint
-        jc.position = 0.35 if open else 0.0
+        jc.position = 0.35 if open else 0.13
         jc.tolerance_above = 0.01
         jc.tolerance_below = 0.01
         jc.weight = 1.0
