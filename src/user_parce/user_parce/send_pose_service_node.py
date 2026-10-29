@@ -52,11 +52,11 @@ def movement_seq(node, start, end):
     seq = [
         ['grip', True],
         ['move', start[0], start[1], 0.2],
-        ['move', start[0], start[1], 0.05],
+        ['move', start[0], start[1], 0.03],
         ['grip', False],
         ['move', start[0], start[1], 0.2],
         ['move', end[0], end[1], 0.2],
-        ['move', end[0], end[1], 0.05],
+        ['move', end[0], end[1], 0.03],
         ['grip', True],
         ['move', end[0], end[1], 0.2],
         ['move', 0.3, 0.0, 0.3]
@@ -134,6 +134,9 @@ def user_input(node):
                 elif (abs(y1) > 0.4) and (x1 == 0.0):
                     print('ERROR - y value too large, robot will tip')
                     continue
+                elif (x1 < 0) and (y1 == 0):
+                    print('ERROR - point on negative x-axis, robot will behave erratically')
+                    continue
                 elif (x1**2 + y1**2) > 0.25:
                     print('ERROR - Out of reach')
                     continue
@@ -169,6 +172,9 @@ def user_input(node):
                     continue
                 elif (abs(y2) > 0.4) and (x2 == 0.0):
                     print('ERROR - y value too large, robot will tip')
+                    continue
+                elif (x2 < 0) and (y2 ==0):
+                    print('ERROR - point on negative x-axis, robot will behave erratically')
                     continue
                 elif (x2**2 + y2**2) > 0.25:
                     print('ERROR - Out of reach')

@@ -73,10 +73,10 @@ class RX200MoveItActionClient(Node):
         # moveit action request
         req = MotionPlanRequest()
         req.group_name = self.arm_group
-        req.max_velocity_scaling_factor = 0.1
+        req.max_velocity_scaling_factor = 0.2
         req.max_acceleration_scaling_factor = 0.1
         req.allowed_planning_time = 5.0
-        req.num_planning_attempts = 10
+        req.num_planning_attempts = 50
 
 
         # position tolerence
@@ -97,7 +97,7 @@ class RX200MoveItActionClient(Node):
         oc.orientation = p.pose.orientation
         oc.absolute_x_axis_tolerance = 0.05
         oc.absolute_y_axis_tolerance = 0.05
-        oc.absolute_z_axis_tolerance = 0.05
+        oc.absolute_z_axis_tolerance = 0.01
         oc.weight = 1.0
 
         # goal tolerance 
