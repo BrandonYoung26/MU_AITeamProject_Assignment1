@@ -1,6 +1,8 @@
 # MU_AITeamProject_Assignment1
 Msc Robotics and Embedded AI - AITeamProject Assignment 1
 
+# TODO: IMPLEMENTATION
+
 Steps:
 - Ensure Interbotix pkg's installed and sourced
 - colcon build
@@ -33,7 +35,21 @@ ros2 service call /move_command custom_interfaces/srv/MoveCommand "{goal: [0.3, 
 ### Manuall call move command service
 ros2 service call /grip_command custom_interfaces/srv/GripCommand "{grip: false}"
 
+## Input Coordinates
+The User Parser will ask for a picking coordinate. Input two decimal values, for x and y (eg: 0.2 0.4). An error will be returned if the values are not suitable, and the user may enter new picking coordinates.
 
+The User Parser then asks for a placing coordinate. Again, input two decimal values for x and y in the same format. An error will be returned if the values are not suitable, and the user may enter new placing coordinates.
+
+Enter 'q' to exit the User Parser.
+
+## Group 7 Members
+Sophia "Rowan" Turner
+
+Sai Wunna Htoo
+
+Brandon Young
+
+Tommy Bunokas
 
 ## Using Git
 
