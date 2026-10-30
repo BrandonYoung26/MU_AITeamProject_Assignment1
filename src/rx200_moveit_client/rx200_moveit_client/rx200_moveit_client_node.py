@@ -47,10 +47,10 @@ class RX200MoveItActionClient(Node):
         self.gripper_joint = 'left_finger'
 
         # initial position
-        move_goal = self.send_ee_pose(0.3, 0.0, 0.3)
-        grip_goal = self.send_gr_pose(True)
-        self._client.send_goal_async(move_goal, self._feedback_cb)
-        self._client.send_goal_async(grip_goal, self._feedback_cb)
+        # move_goal = self.send_ee_pose(0.3, 0.0, 0.3)
+        # grip_goal = self.send_gr_pose(True)
+        # self._client.send_goal_async(move_goal, self._feedback_cb)
+        # self._client.send_goal_async(grip_goal, self._feedback_cb)
 
         self.get_logger().info('[Action Client] RX200 MoveIt Client Initialised')
 
@@ -73,10 +73,10 @@ class RX200MoveItActionClient(Node):
         # moveit action request
         req = MotionPlanRequest()
         req.group_name = self.arm_group
-        req.max_velocity_scaling_factor = 0.2
-        req.max_acceleration_scaling_factor = 0.1
+        req.max_velocity_scaling_factor = 0.4
+        req.max_acceleration_scaling_factor = 0.2
         req.allowed_planning_time = 5.0
-        req.num_planning_attempts = 50
+        req.num_planning_attempts = 15
 
 
         # position tolerence
@@ -95,8 +95,8 @@ class RX200MoveItActionClient(Node):
         oc.header.frame_id = self.base_link
         oc.link_name = self.ee_link
         oc.orientation = p.pose.orientation
-        oc.absolute_x_axis_tolerance = 0.05
-        oc.absolute_y_axis_tolerance = 0.05
+        oc.absolute_x_axis_tolerance = 0.02
+        oc.absolute_y_axis_tolerance = 0.02
         oc.absolute_z_axis_tolerance = 0.01
         oc.weight = 1.0
 

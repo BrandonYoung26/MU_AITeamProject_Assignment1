@@ -25,6 +25,11 @@ class CommandRequestServices(Node):
         while not self.grip_cli.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('[Command Request] GripCommand service not available, waiting again...')
 
+        future = self.move_command([0.3, 0.0, 0.3])
+        rclpy.spin_until_future_complete(self, future)
+        # reseponse = future.result()
+        # result = reseponse.status
+
         self.get_logger().info('[Command Request] Command Client Initialized')
    
 
@@ -52,11 +57,11 @@ def movement_seq(node, start, end):
     seq = [
         ['grip', True],
         ['move', start[0], start[1], 0.2],
-        ['move', start[0], start[1], 0.03],
+        ['move', start[0], start[1], 0.05],
         ['grip', False],
         ['move', start[0], start[1], 0.2],
         ['move', end[0], end[1], 0.2],
-        ['move', end[0], end[1], 0.03],
+        ['move', end[0], end[1], 0.05],
         ['grip', True],
         ['move', end[0], end[1], 0.2],
         ['move', 0.3, 0.0, 0.3]
@@ -80,7 +85,7 @@ def movement_seq(node, start, end):
 
             node.get_logger().info(f'[Command Request] Request Successful')
 
-        # Gripper Command Request
+        # Arm Command Request
         elif seq[i][0] == 'move':
             x = seq[i][1]
             y = seq[i][2]
@@ -94,7 +99,7 @@ def movement_seq(node, start, end):
 
             if result != 1:
                 node.get_logger().info(f'[Command Request] Request Failed (Code: {result}, Exiting...)')
-                return
+                return result
 
             node.get_logger().info(f'[Command Request] Request Successful')
 
@@ -190,10 +195,12 @@ def user_input(node):
 
         start = [float(x1), float(y1)]
         end = [float(x2), float(y2)]
+        ['move', 0.3, 0.0, 0.3]
         response = movement_seq(node, start, end)
 
-        if response == -1:
-            pass
+        if response != 1:
+            future = node.move_command([0.3, 0.0, 0.3])
+            rclpy.spin_until_future_complete(node, future)
 
     return
         
