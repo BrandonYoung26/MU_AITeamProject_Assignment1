@@ -3,9 +3,9 @@
 <package format="3">
   <name>rx200_moveit_client</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>The ros2 moveit action client to control the interbotix rx200 robotic arm and gripper with custom service commands</description>
   <maintainer email="master26@todo.todo">master26</maintainer>
-  <license>TODO: License declaration</license>
+  <license>Apache-2.0</license>
 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
@@ -16,6 +16,7 @@
   <depend>moveit_msgs</depend>
   <depend>shape_msgs</depend>
   <depend>geometry_msgs</depend>
+  <depend>custom_interfaces</depend>
 
   <export>
     <build_type>ament_python</build_type>
