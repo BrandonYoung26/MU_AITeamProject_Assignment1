@@ -3,12 +3,16 @@
 <package format="3">
   <name>moveit_launch</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <description>The launch config for the interbotix rx200 robot and the moveit control client</description>
   <maintainer email="brandon.young.2027@mumail.ie">master26</maintainer>
   <license>Apache-2.0</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
 
+  <exec_depend>launch</exec_depend>
+  <exec_depend>launch_ros</exec_depend>
+  <exec_depend>ament_index_python</exec_depend>
+  <exec_depend>interbotix_xsarm_moveit</exec_depend>
   <exec_depend>rx200_moveit_client</exec_depend>
 
   <test_depend>ament_lint_auto</test_depend>
