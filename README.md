@@ -3,10 +3,19 @@ Msc Robotics and Embedded AI - AITeamProject Assignment 1
 
 # IMPLEMENTATION
 
-Our system uses two ROS2 nodes. Node 1 is the robot driver. It is the only program that talks to Moveit, through the action client, and it offers two services: one moves the arm to an (x,y,z)pose, and the other opens or closes the gripper. Each service returns Moveit's result code, where 1 means success. Node 2 is the user interface and sequencer. It sends the pick-and-place steps to Node 1 one at a time and waits for each results.
-The first problem was the waist would not rotate, because the orientation constraint forced the gripper to face forward. We fixed this by calculating the heading to each target with arctan2(y,x) and turning it into a yaw quaternion, so the base turns to face every point. Each moves uses constraints that combine a target with a tolerence: a 1 cm sphere for position, small angle tolerances for orientation, and a joint constraint for the gripper. We also slowed the arm down for safety.Node 2 checks every input before the robot moves. It rejects invalid input, points too close to the base or out of reach, the blocked zone behind the robot, and points on the negative x-axis, where the heading flips and base would move erratically. If any step in the sequence fails, the sequence stops and moves back to it initial position and asks for new coordinates.
---------
-Steps:
+The system architecture consists of two ROS2 nodes which communiucate through custom services. 
+
+The first node, the MoveIt control node, works as an interface with MoveIt. It uses an action client to submit motion planning requests and execution requests to the MoveIt action server, and then provides two services, one to control the robot's end effector position, and another for opening and closing the gripper. Each of the services return the MoveIt result code to show whether the operation request was succesful.
+
+The second node, the user command and sequencing node, gives the user interface and organises the pick and place task. It takes the desired start and end coordinates, ensures that they are valid, and sends the arm and gripper commands to the MoveIt contol node. All of the service requests are expected before the next command is given, which ensures that the sequence only continues after the last operation has finished successfully.
+
+The initil task overcome was robot's base rotation. Initially the robot was only able to move along the x-axis path because of an orientation constraint making the gripper orientation forward fixed. This was fixed this by calculating the path to each target with arctan2(y,x) and turning it into a yaw quaternion, so the base turns to face every point. The result allowed the robot to rotate towards the end coordinates while keeping the end effector in the desired orientation. 
+
+The end effector is constrained to a sphere area of 1cm radius around the target position. Additionally, there is orientation tolerance added to constrain the robot to the desired orientation, and joint constraints applied as to control the gripper position. The velocity and acceleration factors were also reduced to have more control over the robot while its moving, and to increase the safety.
+
+Before any movements are sent, the user command node first validates every input given by the user. Any entered coordinates that are either too close to the robot's base or out of the robot's reach, in the blocked zone behind the robot, or points on the negative x-axis (as it was found that the robot would behave erratically) are rejected. If any step in the sequence fails, the sequence stops and moves back to it initial position and asks for new coordinates. 
+
+## Launch Steps:
 - Ensure Interbotix pkg's installed and sourced
 - colcon build
 - source install/setup.bash
