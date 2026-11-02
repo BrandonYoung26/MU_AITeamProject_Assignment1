@@ -13,10 +13,10 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='master26',
-    maintainer_email='master26@todo.todo',
-    description='TODO: Package description',
-    license='TODO: License declaration',
+    maintainer='Brandon Young',
+    maintainer_email='Brandon.young.2027@mumail.ie',
+    description='The ros2 moveit action client to control the interbotix rx200 robotic arm and gripper with custom service commands',
+    license='Apache-2.0',
     extras_require={
         'test': [
             'pytest',

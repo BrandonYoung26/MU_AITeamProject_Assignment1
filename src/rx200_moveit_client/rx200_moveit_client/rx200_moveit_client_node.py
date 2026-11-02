@@ -46,7 +46,7 @@ class RX200MoveItActionClient(Node):
         self.base_link = "rx200/base_link"
         self.gripper_joint = 'left_finger'
 
-        # initial position
+        # initial position !!! moved to send_pose node
         # move_goal = self.send_ee_pose(0.3, 0.0, 0.3)
         # grip_goal = self.send_gr_pose(True)
         # self._client.send_goal_async(move_goal, self._feedback_cb)
@@ -55,7 +55,7 @@ class RX200MoveItActionClient(Node):
         self.get_logger().info('[Action Client] RX200 MoveIt Client Initialised')
 
 
-# ========== EE Position ==========
+    # ========== EE Position ==========
     def send_ee_pose(self, x, y, z, w=1.0):
         p = PoseStamped()
         p.header.frame_id = self.base_link
@@ -118,7 +118,7 @@ class RX200MoveItActionClient(Node):
 
         return goal
 
-# ========== Gripper Actuation ==========
+    # ========== Gripper Actuation ==========
     def send_gr_pose(self, open=True):
         req = MotionPlanRequest()
         req.group_name = self.gripper_group
@@ -150,55 +150,59 @@ class RX200MoveItActionClient(Node):
         return goal
 
 
-# ========== Feedback Callback ==========
+    # ========== Feedback Callback ==========
     def _feedback_cb(self, feedback_msg):
-        state = feedback_msg.feedback.state # why not future (question)
+        state = feedback_msg.feedback.state
         self.get_logger().info(f'[Action Client] Current state: {state}')
 
 
-# ========== Command Move Callback ==========
+    # ========== Command Move Callback ==========
     async def _move_command_cb(self, request, response):
         request_goal = request.goal
         self.get_logger().info(f'[Action Client] goal: {request_goal}')
 
+        # Request goal
         moveit_goal = self.send_ee_pose(request_goal[0], request_goal[1], request_goal[2])
 
+        # Send goal async (wait for future)
         handle_goal = await self._client.send_goal_async(moveit_goal, self._feedback_cb)
         if not handle_goal.accepted:
             response.status = -1
             return response
-        
+
+        # Wait for async result code
         result = await handle_goal.get_result_async()
         code = result.result.error_code.val
         self.get_logger().info(f'[Action Client] Result code {code}')
 
         response.status = code
-
         return response
 
 
-# ========== Command Gripper Callback ==========
+    # ========== Command Gripper Callback ==========
     async def _grip_command_cb(self, request, response):
         request_goal = request.grip
         self.get_logger().info(f'[Action Client] grip: {request_goal}')
 
+        # Request goal
         moveit_goal = self.send_gr_pose(request_goal)
 
+        # Send goal async (wait for future)
         handle_goal = await self._client.send_goal_async(moveit_goal, self._feedback_cb)
         if not handle_goal.accepted:
             response.status = -1
             return response
-        
+
+        # Wait for async result code
         result = await handle_goal.get_result_async()
         code = result.result.error_code.val
         self.get_logger().info(f'[Action Client] Result code {code}')
 
         response.status = code
-
         return response
 
 
-# ========== !!! Deprecated: Response Callback ==========
+    # ========== !!! Deprecated: Response Callback ==========
     def _goal_response_cb(self, future):
         handle_goal = future.result()
         if not handle_goal.accepted:
@@ -208,7 +212,7 @@ class RX200MoveItActionClient(Node):
         handle_goal.get_result_async().add_done_callback(self._result_cb)
 
 
-# ========== !!! Deprecated: Result Callback ==========
+    # ========== !!! Deprecated: Result Callback ==========
     def _result_cb(self, future):
         result = future.result().result
         code = result.error_code.val

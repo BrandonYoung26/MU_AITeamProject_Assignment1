@@ -2,9 +2,9 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>rx200_moveit_client</name>
-  <version>0.0.0</version>
+  <version>0.1.0</version>
   <description>The ros2 moveit action client to control the interbotix rx200 robotic arm and gripper with custom service commands</description>
-  <maintainer email="master26@todo.todo">master26</maintainer>
+  <maintainer email="Brandon.young.2027@mumail.ie">master26</maintainer>
   <license>Apache-2.0</license>
 
   <test_depend>ament_copyright</test_depend>

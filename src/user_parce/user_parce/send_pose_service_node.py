@@ -9,6 +9,7 @@ from custom_interfaces.srv import MoveCommand, GripCommand
 import numpy as np
 
 
+
 # ========================================
 #                   Class
 # ========================================
@@ -17,18 +18,19 @@ class CommandRequestServices(Node):
     def __init__(self):
         super().__init__('command_request_services')
 
+        # Position Service to Action Client
         self.move_cli = self.create_client(MoveCommand, 'move_command') 
         while not self.move_cli.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('[Command Request] MoveCommand service not available, waiting again...')
 
+        # Gripper Service to Action Client
         self.grip_cli = self.create_client(GripCommand, 'grip_command')
         while not self.grip_cli.wait_for_service(timeout_sec=1.0):
             self.get_logger().info('[Command Request] GripCommand service not available, waiting again...')
 
+        # Send start Position
         future = self.move_command([0.3, 0.0, 0.3])
         rclpy.spin_until_future_complete(self, future)
-        # reseponse = future.result()
-        # result = reseponse.status
 
         self.get_logger().info('[Command Request] Command Client Initialized')
    
@@ -37,14 +39,14 @@ class CommandRequestServices(Node):
     def move_command(self, goal_pose):
         request = MoveCommand.Request()
         request.goal = goal_pose
-
+        # Send Position Request
         return self.move_cli.call_async(request)
 
     # ========== Grip Command ==========
     def grip_command(self, grip_state):
         request = GripCommand.Request()
         request.grip = grip_state
-    
+        # Send Gripper Request
         return self.grip_cli.call_async(request)
 
 
@@ -57,10 +59,12 @@ def movement_seq(node, start, end):
     seq = [
         ['grip', True],
         ['move', start[0], start[1], 0.2],
+        ['move', start[0], start[1], 0.1],
         ['move', start[0], start[1], 0.05],
         ['grip', False],
         ['move', start[0], start[1], 0.2],
         ['move', end[0], end[1], 0.2],
+        ['move', end[0], end[1], 0.1],
         ['move', end[0], end[1], 0.05],
         ['grip', True],
         ['move', end[0], end[1], 0.2],
@@ -79,6 +83,7 @@ def movement_seq(node, start, end):
             reseponse = future.result()
             result = reseponse.status
 
+            # Action Client result not successful
             if result != 1:
                 node.get_logger().info(f'[Command Request] Request Failed (Code: {result}, Exiting Sequence...)')
                 return -1
@@ -97,6 +102,7 @@ def movement_seq(node, start, end):
             reseponse = future.result()
             result = reseponse.status
 
+            # Action Client result not successful
             if result != 1:
                 node.get_logger().info(f'[Command Request] Request Failed (Code: {result}, Exiting...)')
                 return result
@@ -112,7 +118,7 @@ def movement_seq(node, start, end):
 # ========================================
 def user_input(node):
     while True:
-
+        # Pick position input loop
         while True:
             try:
                 user_input = input('\nPlease Enter Start x and y position in meters e.g. 0.2 0.4 (or q to quit): ').strip().lower()
@@ -140,7 +146,7 @@ def user_input(node):
                     print('ERROR - y value too large, robot will tip')
                     continue
                 elif (x1 < 0) and (y1 == 0):
-                    print('ERROR - point on negative x-axis, robot will behave erratically')
+                    print('ERROR - Negative x-axis with 0 y-axis will result in path instability (Joint Limits)')
                     continue
                 elif (x1**2 + y1**2) > 0.25:
                     print('ERROR - Out of reach')
@@ -152,6 +158,7 @@ def user_input(node):
                 ValueError
                 print('ERROR - Invalid Input.')
 
+        # Place position input loop
         while True:
             try:
                 user_input = input('\nPlease Enter End x and y position in meters e.g. 0.3 0.2 (or q to quit): ').strip().lower()
@@ -179,7 +186,7 @@ def user_input(node):
                     print('ERROR - y value too large, robot will tip')
                     continue
                 elif (x2 < 0) and (y2 ==0):
-                    print('ERROR - point on negative x-axis, robot will behave erratically')
+                    print('ERROR - Negative x-axis with 0 y-axis will result in path instability (Joint Limits)')
                     continue
                 elif (x2**2 + y2**2) > 0.25:
                     print('ERROR - Out of reach')
@@ -193,16 +200,15 @@ def user_input(node):
 
             print()
 
+        # Call movement sequencer
         start = [float(x1), float(y1)]
         end = [float(x2), float(y2)]
-        ['move', 0.3, 0.0, 0.3]
         response = movement_seq(node, start, end)
 
+        # Send return home if failure
         if response != 1:
             future = node.move_command([0.3, 0.0, 0.3])
             rclpy.spin_until_future_complete(node, future)
-
-    return
         
 
 

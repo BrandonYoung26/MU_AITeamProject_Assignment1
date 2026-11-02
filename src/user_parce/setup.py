@@ -13,10 +13,10 @@ setup(
     ],
     install_requires=['setuptools'],
     zip_safe=True,
-    maintainer='master26',
-    maintainer_email='master26@todo.todo',
-    description='TODO: Package description',
-    license='TODO: License declaration',
+    maintainer='Brandon Young',
+    maintainer_email='Brandon.young.2027@mumail.ie',
+    description='ROS2 Node to take pick and place user inputs and send to RX200 Moveit Action Client using custom_interfaces',
+    license='Apache-2.0',
     extras_require={
         'test': [
             'pytest',

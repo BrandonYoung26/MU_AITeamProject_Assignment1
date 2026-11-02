@@ -2,7 +2,7 @@
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
   <name>moveit_launch</name>
-  <version>0.0.0</version>
+  <version>0.1.0</version>
   <description>The launch config for the interbotix rx200 robot and the moveit control client</description>
   <maintainer email="brandon.young.2027@mumail.ie">master26</maintainer>
   <license>Apache-2.0</license>
